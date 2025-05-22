@@ -54,37 +54,40 @@ class MoTextProperties(bpy.types.PropertyGroup):
     
     @classmethod
     def clear_other_input(cls, self, context):
-        # Optional: When switching input_type, clear the irrelevant field
-        # For instance, if switching to 'TEXT', you might want to clear 'object_input'
-        # This requires careful handling if you want to preserve previous selections
-        pass
+        if self.input_type == 'TEXT':
+            self.object_input = None
+        elif self.input_type == 'OBJECT':
+            self.text_input = ""
 
 
 # --- Registration ---
 
 # TODO (Inside __init__.py)
 # ... other imports ...
-#from .utils import on_blend_file_changed # Import the handler
+from .utils import on_blend_file_changed # Import the handler
 
 # ... inside register() ...
-    #bpy.app.handlers.load_post.append(on_blend_file_changed)
-    #bpy.app.handlers.save_post.append(on_blend_file_changed)
+    #bpy.app.handlers.load_post.append(utils.on_blend_file_changed)  # Corrected reference
+    #bpy.app.handlers.save_post.append(utils.on_blend_file_changed)  # Corrected reference
     #update_template_list_on_load() # Initial scan
 
 # ... inside unregister() ...
-    #if on_blend_file_changed in bpy.app.handlers.load_post:
-    #    bpy.app.handlers.load_post.remove(on_blend_file_changed)
-    #if on_blend_file_changed in bpy.app.handlers.save_post:
-    #    bpy.app.handlers.save_post.remove(on_blend_file_changed)
+    #if utils.on_blend_file_changed in bpy.app.handlers.load_post:  # Corrected reference
+    #    bpy.app.handlers.load_post.remove(utils.on_blend_file_changed) # Corrected reference
+    #if utils.on_blend_file_changed in bpy.app.handlers.save_post:  # Corrected reference
+    #    bpy.app.handlers.save_post.remove(utils.on_blend_file_changed) # Corrected reference
 
-#classes_to_register = (
-    #MoTextProperties,
-    #ui.MoTextPanel,
-    #operators.MOTEXT_OT_apply_template,
+classes_to_register = (
+    MoTextProperties,
+    ui.MoTextPanel,
+    operators.MOTEXT_OT_apply_template,
+    operators.MOTEXT_OT_refresh_templates, # Added refresh operator
     # Add other classes if you create more
-#)
+)
 
 def register():
+    bpy.app.handlers.load_post.append(utils.on_blend_file_changed)
+    bpy.app.handlers.save_post.append(utils.on_blend_file_changed)
     for cls in classes_to_register:
         bpy.utils.register_class(cls)
     
@@ -96,6 +99,11 @@ def register():
 
 
 def unregister():
+    if utils.on_blend_file_changed in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.remove(utils.on_blend_file_changed)
+    if utils.on_blend_file_changed in bpy.app.handlers.save_post:
+        bpy.app.handlers.save_post.remove(utils.on_blend_file_changed)
+        
     del bpy.types.Scene.motext_props
     
     for cls in reversed(classes_to_register):
