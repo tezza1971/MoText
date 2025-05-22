@@ -67,8 +67,3 @@ To create your own `.blend` files that are compatible with the MoText addon, fol
 ## Author
 
 Terence Kearns (with AI assistance)
-
-## License
-
-This project is licensed under the MIT License. (Assuming, if a LICENSE file exists, refer to it. If not, this is a common choice for open-source Blender addons.)
-Consider adding a `LICENSE` file to the repository if one does not exist.
