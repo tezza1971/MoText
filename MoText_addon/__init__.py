@@ -61,12 +61,28 @@ class MoTextProperties(bpy.types.PropertyGroup):
 
 
 # --- Registration ---
-classes_to_register = (
-    MoTextProperties,
-    ui.MoTextPanel,
-    operators.MOTEXT_OT_apply_template,
+
+# TODO (Inside __init__.py)
+# ... other imports ...
+#from .utils import on_blend_file_changed # Import the handler
+
+# ... inside register() ...
+    #bpy.app.handlers.load_post.append(on_blend_file_changed)
+    #bpy.app.handlers.save_post.append(on_blend_file_changed)
+    #update_template_list_on_load() # Initial scan
+
+# ... inside unregister() ...
+    #if on_blend_file_changed in bpy.app.handlers.load_post:
+    #    bpy.app.handlers.load_post.remove(on_blend_file_changed)
+    #if on_blend_file_changed in bpy.app.handlers.save_post:
+    #    bpy.app.handlers.save_post.remove(on_blend_file_changed)
+
+#classes_to_register = (
+    #MoTextProperties,
+    #ui.MoTextPanel,
+    #operators.MOTEXT_OT_apply_template,
     # Add other classes if you create more
-)
+#)
 
 def register():
     for cls in classes_to_register:
