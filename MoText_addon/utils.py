@@ -8,9 +8,19 @@ import os
 # but it needs to be updated when Blender starts or when the user changes the current .blend file's directory.
 _template_files_cache = [] 
 
+def get_blend_filepath():
+    """Factory method to safely get the current .blend filepath. Returns None if no file is loaded or if bpy.data is not properly initialized."""
+    try:
+        if hasattr(bpy, 'data') and hasattr(bpy.data, 'filepath'):
+            return bpy.data.filepath
+        else:
+            return None
+    except (RuntimeError, AttributeError, TypeError):
+        return None
+
 def get_project_directory():
     """Returns the directory of the currently open .blend file."""
-    current_blend_filepath = bpy.data.filepath
+    current_blend_filepath = get_blend_filepath()
     if not current_blend_filepath:
         return None # No .blend file saved/opened
     return os.path.dirname(current_blend_filepath)
@@ -41,11 +51,11 @@ def get_template_files_enum_items(self, context):
     # but for dynamic updates, a manual refresh button is better.
     # The `update_template_list_on_load` function handles initial population.
     
-    if not _template_files_cache: # If cache is empty, try to populate it
-        update_template_list_on_load()
-
     if not _template_files_cache:
-         return [("NONE", "No Templates Found", "Place 'mograph_*.blend' files in project dir")]
+        # Do NOT call update_template_list_on_load() here.
+        # Return a placeholder if the cache is empty.
+        # The cache will be populated by file load/save handlers or the refresh button.
+        return [("NONE", "No Templates Loaded", "Save your .blend file and click 'Refresh Templates', or load a project.")]
 
     enum_items = []
     for full_path, display_name, description in _template_files_cache:
@@ -77,8 +87,6 @@ def update_template_list_on_load(force_refresh=False):
 
 # --- Handler to update template list when a new .blend file is loaded or saved ---
 # This ensures the template list is relevant to the current project's directory.
-@bpy.app.handlers.load_post
-@bpy.app.handlers.save_post
 def on_blend_file_changed(dummy):
     print("MoText: Blender file loaded/saved. Refreshing template list.")
     update_template_list_on_load(force_refresh=True) # Force refresh of cache
